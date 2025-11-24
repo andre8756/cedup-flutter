@@ -5,6 +5,7 @@ import '../../widgets/accounts_card.dart';
 import '../../widgets/recent_transactions_card.dart';
 import '../manage_accounts/manage_accounts_screen.dart';
 import '../transaction_screen/transaction_screen.dart';
+import '../statement/statement_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -36,7 +37,76 @@ class _HomeScreenState extends State<HomeScreen> {
     },
   ];
 
-  final List<Map<String, dynamic>> transactions = [
+  // Lista de transações para o extrato
+  final List<Map<String, dynamic>> statementTransactions = [
+    {
+      "bankName": "Nubank",
+      "description": "Transferência recebida",
+      "amount": 900.03,
+      "date": DateTime(2024, 1, 23),
+      "bankIcon":
+          "https://logodownload.org/wp-content/uploads/2019/08/nubank-logo-2-1.png",
+    },
+    {
+      "bankName": "Inter",
+      "description": "Pagamento efetuado",
+      "amount": 23.73,
+      "date": DateTime(2024, 1, 23),
+      "bankIcon":
+          "https://altarendablog.com.br/wp-content/uploads/2023/12/3afb1b054f7646acabdcd1e953f77c7d_thumb1.jpg",
+    },
+    {
+      "bankName": "Caixa",
+      "description": "Taxa de serviço",
+      "amount": -50.03,
+      "date": DateTime(2024, 1, 23),
+      "bankIcon":
+          "https://www.publicitarioscriativos.com/wp-content/uploads/2018/09/nova-identidade-visual-da-caixa-pode-custar-ate-800-milhoes.png",
+    },
+    {
+      "bankName": "Viacredit",
+      "description": "Depósito",
+      "amount": 900.03,
+      "date": DateTime(2024, 1, 23),
+      "bankIcon":
+          "https://logodownload.org/wp-content/uploads/2019/08/nubank-logo-2-1.png", // Placeholder
+    },
+    {
+      "bankName": "Caixa",
+      "description": "Transferência recebida",
+      "amount": 90.03,
+      "date": DateTime(2024, 1, 23),
+      "bankIcon":
+          "https://www.publicitarioscriativos.com/wp-content/uploads/2018/09/nova-identidade-visual-da-caixa-pode-custar-ate-800-milhoes.png",
+    },
+    {
+      "bankName": "Inter",
+      "description": "Depósito",
+      "amount": 150.03,
+      "date": DateTime(2024, 1, 23),
+      "bankIcon":
+          "https://altarendablog.com.br/wp-content/uploads/2023/12/3afb1b054f7646acabdcd1e953f77c7d_thumb1.jpg",
+    },
+    {
+      "bankName": "Nubank",
+      "description": "Compra online",
+      "amount": 5.33,
+      "date": DateTime(2024, 1, 23),
+      "bankIcon":
+          "https://logodownload.org/wp-content/uploads/2019/08/nubank-logo-2-1.png",
+    },
+    {
+      "bankName": "Nubank",
+      "description": "Transferência",
+      "amount": 10.03,
+      "date": DateTime(2024, 1, 23),
+      "bankIcon":
+          "https://logodownload.org/wp-content/uploads/2019/08/nubank-logo-2-1.png",
+    },
+  ];
+
+  // Transações para o widget recente (mantenha as existentes)
+  final List<Map<String, dynamic>> recentTransactions = [
     {
       "description": "Transferência recebida",
       "amount": 150.00,
@@ -58,20 +128,6 @@ class _HomeScreenState extends State<HomeScreen> {
       "bankIcon":
           "https://www.publicitarioscriativos.com/wp-content/uploads/2018/09/nova-identidade-visual-da-caixa-pode-custar-ate-800-milhoes.png",
     },
-    {
-      "description": "Compra supermercado",
-      "amount": -156.43,
-      "date": DateTime(2024, 1, 8),
-      "bankIcon":
-          "https://logodownload.org/wp-content/uploads/2019/08/nubank-logo-2-1.png",
-    },
-    {
-      "description": "Transferência PIX",
-      "amount": -300.00,
-      "date": DateTime(2024, 1, 5),
-      "bankIcon":
-          "https://altarendablog.com.br/wp-content/uploads/2023/12/3afb1b054f7646acabdcd1e953f77c7d_thumb1.jpg",
-    },
   ];
 
   @override
@@ -80,9 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Column(
         children: [
           const AppHeader(userName: "Jorge"),
-          Expanded(
-            child: _buildCurrentScreen(),
-          ),
+          Expanded(child: _buildCurrentScreen()),
         ],
       ),
       bottomNavigationBar: AppFooter(
@@ -103,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 1:
         return TransactionScreen(accounts: accounts);
       case 2:
-        return _buildPlaceholderScreen("Extrato");
+        return StatementScreen(transactions: statementTransactions);
       case 3:
         return _buildPlaceholderScreen("Todos");
       default:
@@ -120,7 +174,10 @@ class _HomeScreenState extends State<HomeScreen> {
             accounts: accounts,
             onManageAccounts: _navigateToManageAccounts,
           ),
-          RecentTransactionsCard(transactions: transactions),
+          RecentTransactionsCard(
+            transactions: recentTransactions,
+            onViewAll: _navigateToStatement, // Adicione o callback aqui
+          ),
           const SizedBox(height: 20),
         ],
       ),
@@ -152,6 +209,13 @@ class _HomeScreenState extends State<HomeScreen> {
           accounts = value;
         });
       }
+    });
+  }
+
+  // Adicione este método para navegar para a tela de extrato
+  void _navigateToStatement() {
+    setState(() {
+      selectedIndex = 2; // Muda para a tela de extrato (índice 2)
     });
   }
 }

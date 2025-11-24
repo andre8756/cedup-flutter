@@ -1,11 +1,15 @@
-// recent_transactions_card.dart
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class RecentTransactionsCard extends StatelessWidget {
   final List<Map<String, dynamic>> transactions;
+  final VoidCallback onViewAll; // Adicione este callback
 
-  const RecentTransactionsCard({super.key, required this.transactions});
+  const RecentTransactionsCard({
+    super.key,
+    required this.transactions,
+    required this.onViewAll, // Adicione este parâmetro
+  });
 
   String _formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year.toString().substring(2)}';
@@ -31,9 +35,7 @@ class RecentTransactionsCard extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 IconButton(
-                  onPressed: () {
-                    // Navegar para tela completa de transações
-                  },
+                  onPressed: onViewAll, // Use o callback aqui também
                   icon: const Icon(Icons.arrow_forward_ios, size: 16),
                 ),
               ],
@@ -124,6 +126,15 @@ class RecentTransactionsCard extends StatelessWidget {
                   ),
                 );
               }),
+
+            // Ver todas as transações
+            if (transactions.isNotEmpty)
+              Center(
+                child: TextButton(
+                  onPressed: onViewAll, // Use o callback aqui
+                  child: const Text("Ver todas as transações"),
+                ),
+              ),
           ],
         ),
       ),

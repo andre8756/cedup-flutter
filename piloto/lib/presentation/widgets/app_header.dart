@@ -117,7 +117,7 @@ class _AppHeaderState extends State<AppHeader> {
   Widget build(BuildContext context) {
     return Container(
       color: const Color(0xFF1E88E5),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 26),
+      padding: const EdgeInsets.only(top: 40, bottom: 10, left: 16, right: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
