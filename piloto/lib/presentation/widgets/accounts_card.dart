@@ -4,13 +4,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 class AccountsCard extends StatefulWidget {
   final double totalBalance;
   final List<Map<String, dynamic>> accounts;
-  final VoidCallback onManageAccounts; // Adicione este callback
+  final VoidCallback onManageAccounts; 
 
   const AccountsCard({
     super.key,
     required this.totalBalance,
     required this.accounts,
-    required this.onManageAccounts, // Adicione este parâmetro
+    required this.onManageAccounts,
   });
 
   @override
@@ -116,7 +116,7 @@ class _AccountsCardState extends State<AccountsCard> {
 
             Center(
               child: OutlinedButton(
-                onPressed: widget.onManageAccounts, // Use o callback aqui
+                onPressed: widget.onManageAccounts, 
                 child: const Text("Gerenciar contas"),
               ),
             ),

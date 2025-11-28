@@ -16,14 +16,8 @@ class AppFooter extends StatelessWidget {
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: "Home"),
         BottomNavigationBarItem(icon: Icon(Icons.sync_alt), label: "Transação"),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.trending_up),
-          label: "Extrato",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.grid_view_rounded),
-          label: "Todos",
-        ),
+        BottomNavigationBarItem(icon: Icon(Icons.trending_up), label: "Extrato"),
+        BottomNavigationBarItem(icon: Icon(Icons.grid_view_rounded), label: "Todos"),
       ],
     );
   }

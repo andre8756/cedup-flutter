@@ -6,6 +6,7 @@ import '../../widgets/recent_transactions_card.dart';
 import '../manage_accounts/manage_accounts_screen.dart';
 import '../transaction_screen/transaction_screen.dart';
 import '../statement/statement_screen.dart';
+import '../todos/todos_screen.dart'; // ← IMPORTANTE PARA A TELA "TODOS"
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,6 +17,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int selectedIndex = 0;
+
   List<Map<String, dynamic>> accounts = [
     {
       "name": "Nubank",
@@ -37,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
     },
   ];
 
-  // Lista de transações para o extrato
+  // Extrato completo
   final List<Map<String, dynamic>> statementTransactions = [
     {
       "bankName": "Nubank",
@@ -63,49 +65,9 @@ class _HomeScreenState extends State<HomeScreen> {
       "bankIcon":
           "https://www.publicitarioscriativos.com/wp-content/uploads/2018/09/nova-identidade-visual-da-caixa-pode-custar-ate-800-milhoes.png",
     },
-    {
-      "bankName": "Viacredit",
-      "description": "Depósito",
-      "amount": 900.03,
-      "date": DateTime(2024, 1, 23),
-      "bankIcon":
-          "https://logodownload.org/wp-content/uploads/2019/08/nubank-logo-2-1.png", // Placeholder
-    },
-    {
-      "bankName": "Caixa",
-      "description": "Transferência recebida",
-      "amount": 90.03,
-      "date": DateTime(2024, 1, 23),
-      "bankIcon":
-          "https://www.publicitarioscriativos.com/wp-content/uploads/2018/09/nova-identidade-visual-da-caixa-pode-custar-ate-800-milhoes.png",
-    },
-    {
-      "bankName": "Inter",
-      "description": "Depósito",
-      "amount": 150.03,
-      "date": DateTime(2024, 1, 23),
-      "bankIcon":
-          "https://altarendablog.com.br/wp-content/uploads/2023/12/3afb1b054f7646acabdcd1e953f77c7d_thumb1.jpg",
-    },
-    {
-      "bankName": "Nubank",
-      "description": "Compra online",
-      "amount": 5.33,
-      "date": DateTime(2024, 1, 23),
-      "bankIcon":
-          "https://logodownload.org/wp-content/uploads/2019/08/nubank-logo-2-1.png",
-    },
-    {
-      "bankName": "Nubank",
-      "description": "Transferência",
-      "amount": 10.03,
-      "date": DateTime(2024, 1, 23),
-      "bankIcon":
-          "https://logodownload.org/wp-content/uploads/2019/08/nubank-logo-2-1.png",
-    },
   ];
 
-  // Transações para o widget recente (mantenha as existentes)
+  // Transações recentes
   final List<Map<String, dynamic>> recentTransactions = [
     {
       "description": "Transferência recebida",
@@ -150,6 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // TROCA ENTRE AS TELAS
   Widget _buildCurrentScreen() {
     switch (selectedIndex) {
       case 0:
@@ -159,12 +122,32 @@ class _HomeScreenState extends State<HomeScreen> {
       case 2:
         return StatementScreen(transactions: statementTransactions);
       case 3:
-        return _buildPlaceholderScreen("Todos");
+        return TodosScreen(
+          userData: {
+            "titular": "Nicolas Rotta",
+            "cpf": "12345678900",
+            "email": "nicolas@email.com",
+            "telefone": "47999999999",
+            "saldoTotal": 1500.75,
+            "status": true,
+            "dataCadastro": "2025-11-23T20:00:00",
+            "avatarUrl": "https://exemplo.com/avatar.png",
+            "bancos": [
+              {
+                "id": 1,
+                "nome": "Banco do Brasil",
+                "agencia": "1234",
+                "conta": "56789-0",
+              },
+            ],
+          },
+        );
       default:
         return _buildHomeContent();
     }
   }
 
+  // CONTEÚDO DA HOME
   Widget _buildHomeContent() {
     return SingleChildScrollView(
       child: Column(
@@ -176,19 +159,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           RecentTransactionsCard(
             transactions: recentTransactions,
-            onViewAll: _navigateToStatement, // Adicione o callback aqui
+            onViewAll: _navigateToStatement,
           ),
           const SizedBox(height: 20),
         ],
-      ),
-    );
-  }
-
-  Widget _buildPlaceholderScreen(String title) {
-    return Center(
-      child: Text(
-        "Tela de $title - Em desenvolvimento",
-        style: const TextStyle(fontSize: 18, color: Colors.grey),
       ),
     );
   }
@@ -212,10 +186,9 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  // Adicione este método para navegar para a tela de extrato
   void _navigateToStatement() {
     setState(() {
-      selectedIndex = 2; // Muda para a tela de extrato (índice 2)
+      selectedIndex = 2;
     });
   }
 }
