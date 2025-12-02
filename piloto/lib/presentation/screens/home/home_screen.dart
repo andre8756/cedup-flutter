@@ -6,7 +6,9 @@ import '../../widgets/recent_transactions_card.dart';
 import '../manage_accounts/manage_accounts_screen.dart';
 import '../transaction_screen/transaction_screen.dart';
 import '../statement/statement_screen.dart';
-import '../todos/todos_screen.dart'; // ← IMPORTANTE PARA A TELA "TODOS"
+import '../todos/todos_screen.dart';
+import '../../../services/auth_service.dart';
+import '../login/login_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -141,6 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ],
           },
+          onLogout: _logout,
         );
       default:
         return _buildHomeContent();
@@ -178,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context) => ManageAccountsScreen(accounts: accounts),
       ),
     ).then((value) {
-      if (value != null) {
+      if (value != null && mounted) {
         setState(() {
           accounts = value;
         });
@@ -190,5 +193,18 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       selectedIndex = 2;
     });
+  }
+
+  // CORREÇÃO: Método de logout com verificação de mounted
+  void _logout() async {
+    await AuthService.logout();
+
+    // Verifica se o widget ainda está montado antes de usar o context
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+    );
   }
 }

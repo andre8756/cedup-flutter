@@ -24,7 +24,7 @@ class _AppHeaderState extends State<AppHeader> {
         return AlertDialog(
           title: Row(
             children: [
-              Icon(Icons.notifications, color: Colors.blue[700]),
+              Icon(Icons.notifications, color: const Color.fromRGBO(25, 118, 210, 1)),
               const SizedBox(width: 8),
               const Text(
                 "Notificações",

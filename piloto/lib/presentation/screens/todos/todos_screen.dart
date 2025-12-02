@@ -1,16 +1,90 @@
 import 'package:flutter/material.dart';
 import '../manage_accounts/manage_accounts_screen.dart';
+import '../statement/statement_screen.dart';
 
 class TodosScreen extends StatefulWidget {
   final Map<String, dynamic> userData;
+  final VoidCallback onLogout; // Adicione este parâmetro
 
-  const TodosScreen({super.key, required this.userData});
+  const TodosScreen({
+    super.key,
+    required this.userData,
+    required this.onLogout, // Adicione este parâmetro
+  });
 
   @override
   State<TodosScreen> createState() => _TodosScreenState();
 }
 
 class _TodosScreenState extends State<TodosScreen> {
+  // Lista de transações de exemplo para o extrato
+  final List<Map<String, dynamic>> _statementTransactions = [
+    {
+      "bankName": "Nubank",
+      "description": "Transferência recebida",
+      "amount": 900.03,
+      "date": DateTime(2024, 1, 23),
+      "bankIcon":
+          "https://logodownload.org/wp-content/uploads/2019/08/nubank-logo-2-1.png",
+    },
+    {
+      "bankName": "Inter",
+      "description": "Pagamento efetuado",
+      "amount": 23.73,
+      "date": DateTime(2024, 1, 23),
+      "bankIcon":
+          "https://altarendablog.com.br/wp-content/uploads/2023/12/3afb1b054f7646acabdcd1e953f77c7d_thumb1.jpg",
+    },
+    {
+      "bankName": "Caixa",
+      "description": "Taxa de serviço",
+      "amount": -50.03,
+      "date": DateTime(2024, 1, 23),
+      "bankIcon":
+          "https://www.publicitarioscriativos.com/wp-content/uploads/2018/09/nova-identidade-visual-da-caixa-pode-custar-ate-800-milhoes.png",
+    },
+    {
+      "bankName": "Viacredit",
+      "description": "Depósito",
+      "amount": 900.03,
+      "date": DateTime(2024, 1, 23),
+      "bankIcon":
+          "https://logodownload.org/wp-content/uploads/2019/08/nubank-logo-2-1.png",
+    },
+    {
+      "bankName": "Caixa",
+      "description": "Transferência recebida",
+      "amount": 90.03,
+      "date": DateTime(2024, 1, 23),
+      "bankIcon":
+          "https://www.publicitarioscriativos.com/wp-content/uploads/2018/09/nova-identidade-visual-da-caixa-pode-custar-ate-800-milhoes.png",
+    },
+    {
+      "bankName": "Inter",
+      "description": "Depósito",
+      "amount": 150.03,
+      "date": DateTime(2024, 1, 23),
+      "bankIcon":
+          "https://altarendablog.com.br/wp-content/uploads/2023/12/3afb1b054f7646acabdcd1e953f77c7d_thumb1.jpg",
+    },
+    {
+      "bankName": "Nubank",
+      "description": "Compra online",
+      "amount": 5.33,
+      "date": DateTime(2024, 1, 23),
+      "bankIcon":
+          "https://logodownload.org/wp-content/uploads/2019/08/nubank-logo-2-1.png",
+    },
+    {
+      "bankName": "Nubank",
+      "description": "Transferência",
+      "amount": 10.03,
+      "date": DateTime(2024, 1, 23),
+      "bankIcon":
+          "https://logodownload.org/wp-content/uploads/2019/08/nubank-logo-2-1.png",
+    },
+  ];
+
   @override
   Widget build(BuildContext context) {
     final user = widget.userData;
@@ -79,6 +153,26 @@ class _TodosScreenState extends State<TodosScreen> {
                     ),
                   ),
                 ),
+
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => StatementScreen(
+                          transactions: _statementTransactions,
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 4),
+                    child: Text(
+                      "Extrato Bancário",
+                      style: TextStyle(color: Colors.blue, fontSize: 16),
+                    ),
+                  ),
+                ),
               ],
             ),
 
@@ -87,7 +181,7 @@ class _TodosScreenState extends State<TodosScreen> {
             // ======== LOGOUT ========
             Center(
               child: GestureDetector(
-                onTap: () => Navigator.pop(context),
+                onTap: widget.onLogout, // Use o callback aqui
                 child: const Padding(
                   padding: EdgeInsets.all(12.0),
                   child: Text(
