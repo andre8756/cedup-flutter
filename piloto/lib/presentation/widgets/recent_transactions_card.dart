@@ -126,15 +126,6 @@ class RecentTransactionsCard extends StatelessWidget {
                   ),
                 );
               }),
-
-            // Ver todas as transações
-            if (transactions.isNotEmpty)
-              Center(
-                child: TextButton(
-                  onPressed: onViewAll, // Use o callback aqui
-                  child: const Text("Ver todas as transações"),
-                ),
-              ),
           ],
         ),
       ),
