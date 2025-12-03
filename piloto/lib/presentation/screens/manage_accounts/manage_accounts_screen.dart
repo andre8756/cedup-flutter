@@ -1,4 +1,3 @@
-// manage_accounts_screen.dart
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -17,7 +16,17 @@ class _ManageAccountsScreenState extends State<ManageAccountsScreen> {
   @override
   void initState() {
     super.initState();
-    _accounts = List.from(widget.accounts);
+    // Garantir que todos os campos possuem valores padrão
+    _accounts = widget.accounts.map((acc) {
+      return {
+        'id': acc['id'] ?? DateTime.now().millisecondsSinceEpoch,
+        'name': acc['name']?.toString() ?? 'Conta',
+        'icon': (acc['icon']?.toString().isNotEmpty == true)
+            ? acc['icon'].toString()
+            : 'https://via.placeholder.com/40',
+        'balance': (acc['balance'] ?? 0.0).toDouble(),
+      };
+    }).toList();
   }
 
   void _deleteAccount(int index) {
@@ -75,7 +84,6 @@ class _ManageAccountsScreenState extends State<ManageAccountsScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Título centralizado
                   const Center(
                     child: Text(
                       'Adicionar Nova Conta',
@@ -86,10 +94,7 @@ class _ManageAccountsScreenState extends State<ManageAccountsScreen> {
                       textAlign: TextAlign.center,
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
-                  // Campos do formulário
                   Expanded(
                     child: SingleChildScrollView(
                       child: Column(
@@ -132,7 +137,7 @@ class _ManageAccountsScreenState extends State<ManageAccountsScreen> {
                               ),
                               prefixText: 'R\$ ',
                             ),
-                            keyboardType: TextInputType.numberWithOptions(
+                            keyboardType: const TextInputType.numberWithOptions(
                               decimal: true,
                             ),
                           ),
@@ -152,10 +157,7 @@ class _ManageAccountsScreenState extends State<ManageAccountsScreen> {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
-                  // Botões centralizados
                   Center(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -176,22 +178,15 @@ class _ManageAccountsScreenState extends State<ManageAccountsScreen> {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () {
-                              if (nameController.text.isNotEmpty &&
-                                  iconController.text.isNotEmpty &&
-                                  balanceController.text.isNotEmpty) {
-                                setState(() {
-                                  _accounts.add({
-                                    'name': nameController.text,
-                                    'icon': iconController.text,
-                                    'balance':
-                                        double.tryParse(
-                                          balanceController.text,
-                                        ) ??
-                                        0.0,
-                                  });
-                                });
-                                Navigator.of(context).pop();
-                              } else {
+                              final name = nameController.text.trim();
+                              final icon = iconController.text.trim();
+                              final balance =
+                                  double.tryParse(
+                                    balanceController.text.trim(),
+                                  ) ??
+                                  0.0;
+
+                              if (name.isEmpty || icon.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text(
@@ -200,7 +195,20 @@ class _ManageAccountsScreenState extends State<ManageAccountsScreen> {
                                     backgroundColor: Colors.red,
                                   ),
                                 );
+                                return;
                               }
+
+                              setState(() {
+                                _accounts.add({
+                                  'id': DateTime.now().millisecondsSinceEpoch,
+                                  'name': name,
+                                  'icon': icon.isNotEmpty
+                                      ? icon
+                                      : 'https://via.placeholder.com/40',
+                                  'balance': balance,
+                                });
+                              });
+                              Navigator.of(context).pop();
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF1E88E5),
@@ -286,6 +294,14 @@ class _ManageAccountsScreenState extends State<ManageAccountsScreen> {
                       itemCount: _accounts.length,
                       itemBuilder: (context, index) {
                         final account = _accounts[index];
+                        final accountName =
+                            account['name']?.toString() ?? 'Conta';
+                        final accountIcon =
+                            account['icon']?.toString() ??
+                            'https://via.placeholder.com/40';
+                        final accountBalance = (account['balance'] ?? 0.0)
+                            .toDouble();
+
                         return Card(
                           margin: const EdgeInsets.symmetric(vertical: 4),
                           child: ListTile(
@@ -293,7 +309,7 @@ class _ManageAccountsScreenState extends State<ManageAccountsScreen> {
                               backgroundColor: Colors.transparent,
                               child: ClipOval(
                                 child: CachedNetworkImage(
-                                  imageUrl: account['icon'],
+                                  imageUrl: accountIcon,
                                   width: 40,
                                   height: 40,
                                   fit: BoxFit.cover,
@@ -306,9 +322,9 @@ class _ManageAccountsScreenState extends State<ManageAccountsScreen> {
                                 ),
                               ),
                             ),
-                            title: Text(account['name']),
+                            title: Text(accountName),
                             subtitle: Text(
-                              'R\$ ${account['balance'].toStringAsFixed(2)}',
+                              'R\$ ${accountBalance.toStringAsFixed(2)}',
                             ),
                             trailing: IconButton(
                               icon: const Icon(Icons.delete, color: Colors.red),

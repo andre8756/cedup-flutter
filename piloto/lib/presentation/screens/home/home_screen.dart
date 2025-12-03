@@ -133,58 +133,63 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _fetchTransactions(List<Map<String, dynamic>> myAccounts) async {
     List<Map<String, dynamic>> tempTransactions = [];
 
-    // Definir período de busca
-    final now = DateTime.now();
-    final startDate = now.subtract(const Duration(days: 90));
-
-    // Formatar datas para ISO 8601
-    final String startStr = startDate.toIso8601String();
-    final String endStr = now.toIso8601String();
-
-    for (var acc in myAccounts) {
-      final int contaId = acc['id'];
-      final endpoint =
-          'conta/banco/transacao/filtros?contaId=$contaId&dataInicio=$startStr&dataFim=$endStr';
-
-      final response = await ApiService.get(endpoint);
+    try {
+      final response = await ApiService.get('conta/banco/transacao/filtros');
 
       if (response['success'] == true && response['data'] != null) {
-        List<dynamic> txList = [];
-        if (response['data'] is List) {
-          txList = response['data'];
-        } else {
-          txList = [response['data']];
-        }
+        List<dynamic> txList = response['data'];
 
         for (var tx in txList) {
           double amount = (tx['valor'] ?? 0.0).toDouble();
-          bool isExpense = tx['contaOrigemId'] == contaId;
+          bool isExpense = myAccounts.any(
+            (acc) => acc['id'] == tx['contaOrigemId'],
+          );
 
+          // Se for despesa (origem é uma das contas do usuário), valor negativo
           if (isExpense) {
             amount = -amount;
           }
 
+          // Buscar o ícone do banco correspondente
+          String? bankIcon;
+          Map<String, dynamic>? accMatch = myAccounts.firstWhere(
+            (acc) =>
+                acc['id'] ==
+                (isExpense ? tx['contaDestinoId'] : tx['contaOrigemId']),
+            orElse: () => {},
+          );
+          bankIcon = accMatch != null ? accMatch['icon'] : null;
+
           tempTransactions.add({
             "bankName": isExpense
-                ? tx['bancoDestinoNome'] ?? "Destino"
-                : tx['bancoOrigemNome'] ?? "Origem",
+                ? tx['bancoDestinoNome']
+                : tx['bancoOrigemNome'],
             "description": tx['descricao'] ?? "Transação",
             "amount": amount,
-            "date": DateTime.tryParse(tx['dataTransacao']) ?? DateTime.now(),
-            "bankIcon": acc['icon'],
+            "date":
+                DateTime.tryParse(tx['dataTransacao'].replaceAll(" - ", "T")) ??
+                DateTime.now(),
+            "bankIcon": bankIcon,
           });
         }
+
+        // Ordenar por data (mais recente primeiro)
+        tempTransactions.sort((a, b) => b['date'].compareTo(a['date']));
+
+        if (mounted) {
+          setState(() {
+            allTransactions = tempTransactions;
+            recentTransactions = tempTransactions
+                .take(5)
+                .toList(); // Pegando apenas 5 últimas
+          });
+        }
+      } else {
+        _showErrorSnackBar("Erro ao carregar transações.");
       }
-    }
-
-    // Ordenar por data (mais recente primeiro)
-    tempTransactions.sort((a, b) => b['date'].compareTo(a['date']));
-
-    if (mounted) {
-      setState(() {
-        allTransactions = tempTransactions;
-        recentTransactions = tempTransactions.take(5).toList();
-      });
+    } catch (e) {
+      print('Erro no _fetchTransactions: $e');
+      _showErrorSnackBar("Erro de conexão: $e");
     }
   }
 
