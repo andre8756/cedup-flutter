@@ -90,6 +90,13 @@ class _TransactionScreenState extends State<TransactionScreen> {
       _showSnack('Informe um valor válido.');
       return;
     }
+
+    // Limite máximo de R$500
+    if (value > 500) {
+      _showSnack('O valor máximo permitido por transação é R\$500,00.');
+      return;
+    }
+
     if (value > _selectedBalance) {
       _showSnack(
         'Saldo insuficiente. Saldo disponível: R\$${_selectedBalance.toStringAsFixed(2)}',
@@ -619,10 +626,6 @@ class _TransactionScreenState extends State<TransactionScreen> {
                         textAlign: TextAlign.center,
                       ),
                     const SizedBox(height: 30),
-                    ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Voltar'),
-                    ),
                   ],
                 ),
               ),

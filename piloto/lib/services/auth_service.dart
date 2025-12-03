@@ -97,4 +97,70 @@ class AuthService {
       'Authorization': 'Bearer $token',
     };
   }
+
+  // Método para registrar usuário
+  static Future<Map<String, dynamic>> register(
+    String titular,
+    String cpf,
+    String email,
+    String telefone,
+    String senha,
+  ) async {
+    try {
+      final url = Uri.parse('$_baseUrl/register');
+
+      final Map<String, dynamic> userData = {
+        "titular": titular,
+        "cpf": cpf.replaceAll(RegExp(r'[^0-9]'), ''),
+        "email": email,
+        "telefone": telefone.replaceAll(RegExp(r'[^0-9]'), ''),
+        "senha": senha,
+      };
+
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(userData),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // CORREÇÃO DO BUG FORMAT EXCEPTION:
+        // Verifica se o corpo começa com '{', indicando JSON.
+        // Se não começar, é texto puro (ex: "Usuário registrado com sucesso!")
+        if (response.body.trim().startsWith('{')) {
+          final Map<String, dynamic> data = json.decode(response.body);
+          if (data.containsKey('token') && data['token'] != null) {
+            _token = data['token'];
+            await _saveToken(_token!);
+            return {'success': true, 'token': _token};
+          } else {
+            // Retornou JSON mas sem token, faz login
+            return await login(email, senha);
+          }
+        } else {
+          // É TEXTO PURO (O caso do seu erro).
+          // Significa sucesso, então fazemos login automático.
+          return await login(email, senha);
+        }
+      } else {
+        try {
+          final Map<String, dynamic> errorData = json.decode(response.body);
+          return {
+            'success': false,
+            'error': errorData['message'] ?? 'Erro ao cadastrar usuário',
+          };
+        } catch (_) {
+          // Se der erro e não for JSON, retorna o corpo como mensagem
+          return {
+            'success': false,
+            'error': response.body.isNotEmpty
+                ? response.body
+                : 'Erro ${response.statusCode}',
+          };
+        }
+      }
+    } catch (e) {
+      return {'success': false, 'error': 'Erro de conexão: $e'};
+    }
+  }
 }
