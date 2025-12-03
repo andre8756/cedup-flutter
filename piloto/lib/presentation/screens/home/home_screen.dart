@@ -298,7 +298,8 @@ class _HomeScreenState extends State<HomeScreen> {
             AccountsCard(
               totalBalance: totalBalance,
               accounts: accounts,
-              onManageAccounts: _navigateToManageAccounts,
+              onManageAccounts:
+                  _navigateToManageAccounts, // Use o método com underline
             ),
             const SizedBox(height: 20),
           ],
@@ -307,14 +308,21 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // Dentro da classe _HomeScreenState
+
+  // Método correto de navegação
   void _navigateToManageAccounts() {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ManageAccountsScreen(accounts: accounts),
       ),
-    ).then((value) {
-      if (mounted) _fetchData();
+    ).then((_) {
+      // IMPORTANTE: Recarrega os dados ao voltar
+      if (mounted) {
+        print("Voltando da tela de gestão. Atualizando dados...");
+        _fetchData();
+      }
     });
   }
 

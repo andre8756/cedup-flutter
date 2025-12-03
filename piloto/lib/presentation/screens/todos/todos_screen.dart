@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import '../manage_accounts/manage_accounts_screen.dart';
+import '../../../services/api_service.dart'; // Certifique-se que o caminho do import está correto
 
 class TodosScreen extends StatefulWidget {
   final Map<String, dynamic> userData;
-  final VoidCallback onLogout; // Adicione este parâmetro
+  final VoidCallback onLogout;
 
   const TodosScreen({
     super.key,
     required this.userData,
-    required this.onLogout, // Adicione este parâmetro
+    required this.onLogout,
   });
 
   @override
@@ -16,7 +17,21 @@ class TodosScreen extends StatefulWidget {
 }
 
 class _TodosScreenState extends State<TodosScreen> {
-  // Lista de transações de exemplo para o extrato
+  // Função para processar o Logout no servidor e depois localmente
+  Future<void> _handleLogout() async {
+    try {
+      // Chama o endpoint para invalidar o token no backend (Blacklist)
+      // O ApiService já injeta o Header "Authorization: Bearer ..."
+      await ApiService.post('api/auth/logout', {});
+    } catch (e) {
+      // Se der erro (ex: internet caiu), apenas loga o erro,
+      // mas permite que o usuário saia do app mesmo assim.
+      print("Erro ao comunicar logout ao servidor: $e");
+    } finally {
+      // Executa a callback que limpa o token local e navega para o Login
+      widget.onLogout();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,70 +46,28 @@ class _TodosScreenState extends State<TodosScreen> {
             const SizedBox(height: 20),
 
             // ======== INFORMAÇÕES DO USUÁRIO ========
-            _infoTile("Titular", user["titular"]),
-            _infoTile("CPF", user["cpf"]),
-            _infoTile("Email", user["email"]),
-            _infoTile("Telefone", user["telefone"]),
-            _infoTile("Saldo total", "R\$ ${user['saldoTotal']}"),
-            _infoTile("Status", user["status"] ? "Ativo" : "Inativo"),
+            _infoTile("Titular", user["titular"] ?? ""),
+            _infoTile("CPF", user["cpf"] ?? ""),
+            _infoTile("Email", user["email"] ?? ""),
+            _infoTile("Telefone", user["telefone"] ?? ""),
+            _infoTile("Saldo total", "R\$ ${user['saldoTotal'] ?? 0.0}"),
+            _infoTile("Status", (user["status"] == true) ? "Ativo" : "Inativo"),
             _infoTile(
               "Data de cadastro",
-              user["dataCadastro"].toString().substring(0, 10),
+              user["dataCadastro"] != null
+                  ? user["dataCadastro"].toString().substring(0, 10)
+                  : "",
             ),
 
             const SizedBox(height: 20),
-
-            // ======== LINKS MAIS PRÓXIMOS ========
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ManageAccountsScreen(
-                          accounts: [
-                            {
-                              "name": "Nubank",
-                              "balance": 900.03,
-                              "icon":
-                                  "https://logodownload.org/wp-content/uploads/2019/08/nubank-logo-2-1.png",
-                            },
-                            {
-                              "name": "Inter",
-                              "balance": 400.02,
-                              "icon":
-                                  "https://altarendablog.com.br/wp-content/uploads/2023/12/3afb1b054f7646acabdcd1e953f77c7d_thumb1.jpg",
-                            },
-                            {
-                              "name": "Caixa",
-                              "balance": 96.03,
-                              "icon":
-                                  "https://www.publicitarioscriativos.com/wp-content/uploads/2018/09/nova-identidade-visual-da-caixa-pode-custar-ate-800-milhoes.png",
-                            },
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 4),
-                    child: Text(
-                      "Gerenciar Contas Bancárias",
-                      style: TextStyle(color: Colors.blue, fontSize: 16),
-                    ),
-                  ),
-                ),
-              ],
-            ),
 
             const SizedBox(height: 30),
 
             // ======== LOGOUT ========
             Center(
               child: GestureDetector(
-                onTap: widget.onLogout, // Use o callback aqui
+                onTap:
+                    _handleLogout, // Alterado para chamar a função com a lógica da API
                 child: const Padding(
                   padding: EdgeInsets.all(12.0),
                   child: Text(
