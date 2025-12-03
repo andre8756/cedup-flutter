@@ -147,36 +147,62 @@ class _HomeScreenState extends State<HomeScreen> {
         List<dynamic> txList = response['data'];
 
         for (var tx in txList) {
-          double amount = (tx['valor'] ?? 0.0).toDouble();
+          // Formatar data
+          DateTime? date;
+          try {
+            if (tx['dataTransacao'] != null) {
+              final parts = tx['dataTransacao'].split(' - ');
+              if (parts.length == 2) {
+                final datePart = parts[0];
+                final timePart = parts[1];
+                final dateParts = datePart.split('/');
+                final timeParts = timePart.split(':');
+
+                if (dateParts.length == 3 && timeParts.length == 2) {
+                  date = DateTime(
+                    int.parse(dateParts[2]),
+                    int.parse(dateParts[1]),
+                    int.parse(dateParts[0]),
+                    int.parse(timeParts[0]),
+                    int.parse(timeParts[1]),
+                  );
+                }
+              }
+            }
+          } catch (e) {
+            print('Erro ao parsear data: ${tx['dataTransacao']}');
+            date = DateTime.now();
+          }
+
+          // Verificar se é uma transação de saída (origem é uma das contas do usuário)
           bool isExpense = myAccounts.any(
             (acc) => acc['id'] == tx['contaOrigemId'],
           );
 
-          // Se for despesa (origem é uma das contas do usuário), valor negativo
+          // Determinar valor (negativo para saídas, positivo para entradas)
+          double amount = (tx['valor'] ?? 0.0).toDouble();
           if (isExpense) {
             amount = -amount;
           }
 
-          // Buscar o ícone do banco correspondente
-          String? bankIcon;
-          Map<String, dynamic>? accMatch = myAccounts.firstWhere(
-            (acc) =>
-                acc['id'] ==
-                (isExpense ? tx['contaDestinoId'] : tx['contaOrigemId']),
-            orElse: () => {},
-          );
-          bankIcon = accMatch != null ? accMatch['icon'] : null;
-
+          // Adicionar à lista de transações formatadas
           tempTransactions.add({
-            "bankName": isExpense
-                ? tx['bancoDestinoNome']
-                : tx['bancoOrigemNome'],
-            "description": tx['descricao'] ?? "Transação",
-            "amount": amount,
-            "date":
-                DateTime.tryParse(tx['dataTransacao'].replaceAll(" - ", "T")) ??
-                DateTime.now(),
-            "bankIcon": bankIcon,
+            'id': tx['id'],
+            'contaOrigemId': tx['contaOrigemId'],
+            'bancoOrigemNome': tx['bancoOrigemNome'],
+            'bancoOrigemTitular': tx['bancoOrigemTitular'],
+            'bancoOrigemChavePix': tx['bancoOrigemChavePix'],
+            'contaDestinoId': tx['contaDestinoId'],
+            'bancoDestinoNome': tx['bancoDestinoNome'],
+            'bancoDestinoTitular': tx['bancoDestinoTitular'],
+            'bancoDestinoChavePix': tx['bancoDestinoChavePix'],
+            'valor': amount,
+            'descricao': tx['descricao'] ?? 'Transação',
+            'dataTransacao': tx['dataTransacao'],
+            'date': date ?? DateTime.now(),
+            'amount': amount, // Mantido para compatibilidade
+            'description':
+                tx['descricao'] ?? 'Transação', // Mantido para compatibilidade
           });
         }
 
@@ -186,9 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (mounted) {
           setState(() {
             allTransactions = tempTransactions;
-            recentTransactions = tempTransactions
-                .take(5)
-                .toList(); // Pegando apenas 5 últimas
+            recentTransactions = tempTransactions.take(5).toList();
           });
         }
       } else {
@@ -255,7 +279,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 1:
         return TransactionScreen(accounts: accounts);
       case 2:
-        return StatementScreen(transactions: allTransactions);
+        return StatementScreen();
       case 3:
         return TodosScreen(userData: userFullData ?? {}, onLogout: _logout);
       default:
@@ -275,10 +299,6 @@ class _HomeScreenState extends State<HomeScreen> {
               totalBalance: totalBalance,
               accounts: accounts,
               onManageAccounts: _navigateToManageAccounts,
-            ),
-            RecentTransactionsCard(
-              transactions: recentTransactions,
-              onViewAll: _navigateToStatement,
             ),
             const SizedBox(height: 20),
           ],
