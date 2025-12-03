@@ -16,18 +16,8 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   String _errorMessage = '';
 
-  @override
-  void initState() {
-    super.initState();
-    _checkIfLoggedIn();
-  }
-
-  void _checkIfLoggedIn() async {
-    bool loggedIn = await AuthService.isLoggedIn();
-    if (loggedIn && mounted) {
-      _navigateToHome();
-    }
-  }
+  // REMOVIDO: initState e _checkIfLoggedIn.
+  // O AuthWrapper no main.dart já decide se deve mostrar essa tela.
 
   void _navigateToHome() {
     Navigator.pushReplacement(
@@ -82,7 +72,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Logo/Title
                       const Icon(
                         Icons.account_balance_wallet,
                         size: 64,
@@ -104,7 +93,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 32),
 
-                      // Campo de email
                       TextFormField(
                         controller: _emailController,
                         decoration: const InputDecoration(
@@ -125,7 +113,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Campo de senha
                       TextFormField(
                         controller: _passwordController,
                         decoration: const InputDecoration(
@@ -146,7 +133,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Mensagem de erro
                       if (_errorMessage.isNotEmpty)
                         Container(
                           width: double.infinity,
@@ -164,7 +150,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       if (_errorMessage.isNotEmpty) const SizedBox(height: 16),
 
-                      // Botão de login
                       SizedBox(
                         width: double.infinity,
                         height: 50,
@@ -195,33 +180,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                         ),
                       ),
-
                       const SizedBox(height: 16),
-
-                      // Texto de informações de teste
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.blue[50],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Credenciais de teste:',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text('Email: nicolas@email.com'),
-                            Text('Senha: Banana123'),
-                          ],
-                        ),
-                      ),
                     ],
                   ),
                 ),
