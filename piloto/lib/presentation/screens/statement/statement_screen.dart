@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
-// import 'package:permission_handler/permission_handler.dart'; // Não é estritamente necessário se usar SAF, mas pode manter
 import 'package:dio/dio.dart';
 import '../../../services/api_service.dart';
 import '../../../services/auth_service.dart';

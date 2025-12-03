@@ -153,4 +153,52 @@ class ApiService {
       return {'success': false, 'error': 'Erro de conexão: $e'};
     }
   }
+
+  // Adicione este método dentro da classe ApiService
+
+  static Future<Map<String, dynamic>> put(
+    String endpoint,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final headers = await AuthService.getAuthHeaders();
+      final cleanEndpoint = endpoint.startsWith('/')
+          ? endpoint.substring(1)
+          : endpoint;
+
+      final response = await http.put(
+        Uri.parse('$_baseUrl/$cleanEndpoint'),
+        headers: headers,
+        body: json.encode(data),
+      );
+
+      if (response.statusCode == 200) {
+        if (response.body.isNotEmpty) {
+          return {'success': true, 'data': json.decode(response.body)};
+        }
+        return {'success': true, 'data': {}};
+      } else if (response.statusCode == 401) {
+        return {
+          'success': false,
+          'error': 'Sessão expirada.',
+          'unauthorized': true,
+        };
+      } else {
+        try {
+          final Map<String, dynamic> errorData = json.decode(response.body);
+          return {
+            'success': false,
+            'error': errorData['message'] ?? 'Erro ao atualizar',
+          };
+        } catch (_) {
+          return {
+            'success': false,
+            'error': 'Erro ${response.statusCode}: ${response.reasonPhrase}',
+          };
+        }
+      }
+    } catch (e) {
+      return {'success': false, 'error': 'Erro de conexão: $e'};
+    }
+  }
 }
