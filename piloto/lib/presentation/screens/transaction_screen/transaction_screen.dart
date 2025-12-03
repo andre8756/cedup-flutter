@@ -274,11 +274,15 @@ class _TransactionScreenState extends State<TransactionScreen> {
                                                       strokeWidth: 1,
                                                     ),
                                                 errorWidget:
-                                                    (context, url, error) =>
-                                                        const Icon(
-                                                          Icons.account_balance,
-                                                          size: 16,
-                                                        ),
+                                                    (
+                                                      context,
+                                                      url,
+                                                      error,
+                                                    ) => const Icon(
+                                                      Icons
+                                                          .account_balance_wallet,
+                                                      size: 25,
+                                                    ),
                                               ),
                                             ),
                                           ),
