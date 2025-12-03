@@ -74,20 +74,27 @@ class _HomeScreenState extends State<HomeScreen> {
         List<dynamic> bancosApi = data['bancos'] ?? [];
         List<Map<String, dynamic>> mappedAccounts = [];
 
-        // No método _fetchData da HomeScreen, atualize o mapeamento dos bancos:
         for (var banco in bancosApi) {
           mappedAccounts.add({
             "id": banco['id'],
             "name": banco['nomeBanco'] ?? "Banco",
             "balance": (banco['saldo'] ?? 0.0).toDouble(),
-            // Se bancoUrl for nulo, vazio ou "null", armazena null
             "icon":
                 (banco['bancoUrl'] == null ||
                     banco['bancoUrl'].toString().isEmpty ||
                     banco['bancoUrl'].toString().toLowerCase() == 'null')
                 ? null
                 : banco['bancoUrl'].toString(),
+            "permitirTransacao": banco['permitirTransacao'] ?? true,
+            "chavePix":
+                banco['chavePix'] ??
+                '', // ADICIONE ESTA LINHA - NOME DO CAMPO EXATO DA API
           });
+
+          // Debug: imprima os dados mapeados
+          print(
+            'Banco mapeado: ${banco['nomeBanco']}, ChavePix: ${banco['chavePix']}',
+          );
         }
 
         setState(() {
